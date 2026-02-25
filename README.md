@@ -1,4 +1,4 @@
-# jcm_commandmenu - PowerShell Favourites Menu
+# command-menu - PowerShell Favourites Menu
 
 # Introduction
 This module provides a hotkey driven menu for all your favourite commands
