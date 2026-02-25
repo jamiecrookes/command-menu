@@ -13,27 +13,27 @@ function Show-CommandMenu {
 
     # Check for file and throw if missing
     if (Test-Path "$HOME\commandmenu.txt") {
-        $MenuOptions = Get-Content -Path "$HOME\commandmenu.txt"
+        $menuOptions = Get-Content -Path "$HOME\commandmenu.txt"
     } else {
         throw "Favourites file $HOME\commandmenu.txt not found"
     }
 
     # Check for file contents and throw if empty
-    if (-not $MenuOptions -or $MenuOptions.Count -eq 0) {
+    if (-not $menuOptions -or $menuOptions.Count -eq 0) {
         throw "MenuOptions cannot be empty."
     }
 
-    # Make some nooooooise
+    # Make some nooooooise, or not. Delete me if you don't like
     [console]::beep(2000,80)
     [console]::beep(2000,80)
 
     # Some maths for menu sizing
-    $maxIndex  = $MenuOptions.Count - 1
+    $maxIndex  = $menuOptions.Count - 1
     $selection = 0
     $rightMargin = 2
 
     # Longest entry + padding
-    $longest = ($MenuOptions | Measure-Object -Property Length -Maximum).Maximum
+    $longest = ($menuOptions | Measure-Object -Property Length -Maximum).Maximum
     $targetBarWidth = ($longest + 4) + 10
 
     while ($true) {
@@ -56,7 +56,7 @@ function Show-CommandMenu {
         # Draw the menu items
         for ($i = 0; $i -le $maxIndex; $i++) {
 
-            $raw = " $($MenuOptions[$i])"
+            $raw = " $($menuOptions[$i])"
 
             if ($raw.Length -gt $barWidth) {
                 $raw = $raw.Substring(0, [Math]::Max(0, $barWidth - 1)) + "…"
@@ -82,17 +82,25 @@ function Show-CommandMenu {
         $keyInfo = $Host.UI.RawUI.ReadKey('NoEcho,IncludeKeyDown')
 
         switch ($keyInfo.VirtualKeyCode) {
-            13 { return $MenuOptions[$selection] }
+            # Enter pressed
+            13 { return $menuOptions[$selection] }
+
+            # Escape pressed
             27 { return -1 }
+
+            # Up arrow pressed
             38 { $selection = if ($selection -eq 0) { $maxIndex } else { $selection - 1 } }
+
+            # Down arrow pressed
             40 { $selection = if ($selection -eq $maxIndex) { 0 } else { $selection + 1 } }
+
             default { }
         }
     }
 }
 
 ## Set hotkey binding for bookmark selection
-Set-PSReadLineKeyHandler -Chord 'Ctrl+g' -BriefDescription 'PsFaves menu' -ScriptBlock {
+Set-PSReadLineKeyHandler -Chord 'Ctrl+g' -BriefDescription 'Command Menu' -ScriptBlock {
     param($key, $arg)
 
     # Execute the function and store the selected item result
@@ -104,5 +112,5 @@ Set-PSReadLineKeyHandler -Chord 'Ctrl+g' -BriefDescription 'PsFaves menu' -Scrip
     # Leave the selected command on the input line
     if ($choice -ne -1) {
         [Microsoft.PowerShell.PSConsoleReadLine]::Insert("$choice ")
-    }
+    } 
 }
