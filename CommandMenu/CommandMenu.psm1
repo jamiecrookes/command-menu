@@ -38,16 +38,24 @@ function Show-CommandMenu {
     while ($true) {
         # Cap to console width each redraw so it won't wrap
         $windowWidth = $Host.UI.RawUI.WindowSize.Width
-        $barWidth = [Math]::Min($targetBarWidth, [Math]::Max(10, $windowWidth - $rightMargin))
+        
+        # Make sure barWidth is an Int32 to avoid double
+        $barWidth = [int]([Math]::Min($targetBarWidth, [Math]::Max(10, $windowWidth - $rightMargin)))
 
-        # Menu title drawing preparation
-        $topBorderLines = "╔" + "═"*(($barWidth)) + "╗"
-        $midBorderLines = "╠" + "═"*(($barWidth)) + "╣"
-        $bottomBorderLines = "╚" + "═"*(($barWidth)) + "╝"
-        $menuTitle = "║" + " Command Menu" + " "*(($barWidth) - 13) + "║"
+        # Character codepoints required for PowerShell 5.1 BOM/UTF compatibility
+        $TL = [char]0x2554; $HZ = [char]0x2550; $TR = [char]0x2557
+        $ML = [char]0x2560; $MR = [char]0x2563
+        $BL = [char]0x255A; $BR = [char]0x255D
+        $VL = [char]0x2551
+
+        # Cast the repeating char to string before using * to draw borders
+        $topBorderLines    = "$TL" + ("$HZ" * $barWidth) + "$TR"
+        $midBorderLines    = "$ML" + ("$HZ" * $barWidth) + "$MR"
+        $bottomBorderLines = "$BL" + ("$HZ" * $barWidth) + "$BR"
+        $menuTitle         = "$VL" + " Command Menu" + (" " * ($barWidth - 13)) + "$VL"
 
         # Output to screen
-        Clear-Host
+        [Console]::Clear()        
         Write-Host $topBorderLines
         Write-Host $menuTitle
         Write-Host $midBorderLines
@@ -58,19 +66,21 @@ function Show-CommandMenu {
             $raw = " $($menuOptions[$i])"
 
             if ($raw.Length -gt $barWidth) {
-                $raw = $raw.Substring(0, [Math]::Max(0, $barWidth - 1)) + "…"
+                $raw = $raw.Substring(0, [Math]::Max(0, $barWidth - 1)) + $EL
             }
 
             $line = $raw.PadRight($barWidth)
 
             if ($i -eq $selection) {
-                Write-Host "║" -NoNewline
+                # Write selected entry
+                Write-Host $VL -NoNewline
                 Write-Host $line -BackgroundColor DarkRed -ForegroundColor Yellow -NoNewline
-                Write-Host "║"
+                Write-Host $VL
             } else {
-                Write-Host "║" -NoNewline
+                # Write unselected entries
+                Write-Host $VL -NoNewline
                 Write-Host $line -NoNewline
-                Write-Host "║"
+                Write-Host $VL
             }
         }
 
@@ -98,55 +108,18 @@ function Show-CommandMenu {
     }
 }
 
-function Write-CommandLineText {
-    <###################################################################################
-    .SYNOPSIS
-        Helper Function that properly detects terminal type
-    .DESCRIPTION
-        This function now detects whether PsReadLine is present. If it isn't then 
-        WScript.Shell.SendKeys is used instead. This provides compatibility with
-        older terminal types, or terminal types which don't allow PsReadLine, such as 
-        remote sessions, locked down terminals etc.
-    .PARAMETER Text
-        The text string to dump onto the command line once an option is selected.
-    .EXAMPLE
-        <not run manually>
-    .NOTES
-        Author          :  Jamie Crookes
-        Date Created    :  26th February 2026
-    ###################################################################################>
-    param([string]$Text)
+# Process the hotkey if PsReadLine is available
+if (Get-Command Set-PSReadLineKeyHandler -ErrorAction SilentlyContinue) {
+    Set-PSReadLineKeyHandler -Chord 'Ctrl+g' -BriefDescription 'Command Menu' -ScriptBlock {
+        param($key, $arg)
 
-    # Get current terminal type for PsReadLine compatibles
-    $psrlType = [type]::GetType(
-        "Microsoft.PowerShell.PSConsoleReadLine, Microsoft.PowerShell.PSReadLine",
-        $false
-    )
+        # Spawn menu
+        $choice = Show-CommandMenu
 
-    # Send the text based on the test condition above
-    if ($psrlType) {
-        # PsReadLine method
-        [Microsoft.PowerShell.PSConsoleReadLine]::Insert($Text)
+        # Clear the screen and leave the selection on the input line on enter press
+        [Microsoft.PowerShell.PSConsoleReadLine]::ClearScreen()
+        if ($choice -ne -1) {
+            [Microsoft.PowerShell.PSConsoleReadLine]::Insert("$choice ")
+        }
     }
-    else {
-        # WScript.Shell SendKeys method
-        $shell = New-Object -ComObject WScript.Shell
-        $shell.SendKeys($Text)
-    }
-}
-
-## Set hotkey binding for command menu
-Set-PSReadLineKeyHandler -Chord 'Ctrl+g' -BriefDescription 'Command Menu' -ScriptBlock {
-    param($key, $arg)
-
-    # Execute the function and store the selected item result
-    $choice = Show-CommandMenu
-    
-    # Clear the screen or render issues occur
-    Clear-Host
-
-    # Leave the selected command on the input line
-    if ($choice -ne -1) {
-        Write-CommandLineText "$choice "
-    } 
 }

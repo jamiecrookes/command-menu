@@ -18,9 +18,11 @@ enter on to execute.
 
 # Requirements
 - A file in your home directory called commandmenu.txt
+- A PSReadLine compatible terminal
+- Windows PowerShell or PowerShell Core
 
 # Installation
-Copy the module file to a location of your choice. Preferably, one which will auto-
+Copy the module directory to a location of your choice. Preferably, one which will auto-
 load on shell/terminal startup.
 
 Once copied, create your commandmenu.txt file and populate it with your favourite
