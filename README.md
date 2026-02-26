@@ -1,4 +1,4 @@
-# command-menu - PowerShell Favourites Menu
+# CommandMenu - PowerShell Favourites Menu
 
 # Introduction
 This module provides a hotkey driven menu for all your favourite commands
