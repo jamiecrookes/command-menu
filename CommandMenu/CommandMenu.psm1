@@ -55,7 +55,7 @@ function Show-CommandMenu {
         $menuTitle         = "$VL" + " Command Menu" + (" " * ($barWidth - 13)) + "$VL"
 
         # Output to screen
-        [Console]::Clear()        
+        [Console]::Clear()
         Write-Host $topBorderLines
         Write-Host $menuTitle
         Write-Host $midBorderLines
