@@ -45,7 +45,7 @@ function Show-CommandMenu {
         $topBorderLines = "╔" + "═"*(($barWidth)) + "╗"
         $midBorderLines = "╠" + "═"*(($barWidth)) + "╣"
         $bottomBorderLines = "╚" + "═"*(($barWidth)) + "╝"
-        $menuTitle = "║" + " PowerShell Favourites" + " "*(($barWidth) - 22) + "║"
+        $menuTitle = "║" + " Command Menu" + " "*(($barWidth) - 13) + "║"
 
         # Output to screen
         Clear-Host
@@ -99,7 +99,7 @@ function Show-CommandMenu {
     }
 }
 
-## Set hotkey binding for bookmark selection
+## Set hotkey binding for command menu
 Set-PSReadLineKeyHandler -Chord 'Ctrl+g' -BriefDescription 'Command Menu' -ScriptBlock {
     param($key, $arg)
 
