@@ -25,7 +25,6 @@ function Show-CommandMenu {
 
     # Make some nooooooise, or not. Delete me if you don't like
     [console]::beep(2000,80)
-    [console]::beep(2000,80)
 
     # Some maths for menu sizing
     $maxIndex  = $menuOptions.Count - 1
