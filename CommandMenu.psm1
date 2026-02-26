@@ -99,7 +99,7 @@ function Show-CommandMenu {
 }
 
 function Write-CommandLineText {
-    <#
+    <###################################################################################
     .SYNOPSIS
         Helper Function that properly detects terminal type
     .DESCRIPTION
@@ -108,13 +108,13 @@ function Write-CommandLineText {
         older terminal types, or terminal types which don't allow PsReadLine, such as 
         remote sessions, locked down terminals etc.
     .PARAMETER Text
-        The text string required to dump onto the command line once an option is selected.
+        The text string to dump onto the command line once an option is selected.
     .EXAMPLE
         <not run manually>
     .NOTES
         Author          :  Jamie Crookes
         Date Created    :  26th February 2026
-    #>
+    ###################################################################################>
     param([string]$Text)
 
     # Get current terminal type for PsReadLine compatibles
