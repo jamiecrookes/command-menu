@@ -18,7 +18,6 @@ enter on to execute.
 
 # Requirements
 - A file in your home directory called commandmenu.txt
-- A PsReadLine enabled shell/terminal. (This does not work in PowerShell ISE)
 
 # Installation
 Copy the module file to a location of your choice. Preferably, one which will auto-

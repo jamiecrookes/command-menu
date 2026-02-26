@@ -125,9 +125,11 @@ function Write-CommandLineText {
 
     # Send the text based on the test condition above
     if ($psrlType) {
+        # PsReadLine method
         [Microsoft.PowerShell.PSConsoleReadLine]::Insert($Text)
     }
     else {
+        # WScript.Shell SendKeys method
         $shell = New-Object -ComObject WScript.Shell
         $shell.SendKeys($Text)
     }
