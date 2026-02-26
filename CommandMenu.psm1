@@ -98,6 +98,41 @@ function Show-CommandMenu {
     }
 }
 
+function Write-CommandLineText {
+    <#
+    .SYNOPSIS
+        Helper Function that properly detects terminal type
+    .DESCRIPTION
+        This function now detects whether PsReadLine is present. If it isn't then 
+        WScript.Shell.SendKeys is used instead. This provides compatibility with
+        older terminal types, or terminal types which don't allow PsReadLine, such as 
+        remote sessions, locked down terminals etc.
+    .PARAMETER Text
+        The text string required to dump onto the command line once an option is selected.
+    .EXAMPLE
+        <not run manually>
+    .NOTES
+        Author          :  Jamie Crookes
+        Date Created    :  26th February 2026
+    #>
+    param([string]$Text)
+
+    # Get current terminal type for PsReadLine compatibles
+    $psrlType = [type]::GetType(
+        "Microsoft.PowerShell.PSConsoleReadLine, Microsoft.PowerShell.PSReadLine",
+        $false
+    )
+
+    # Send the text based on the test condition above
+    if ($psrlType) {
+        [Microsoft.PowerShell.PSConsoleReadLine]::Insert($Text)
+    }
+    else {
+        $shell = New-Object -ComObject WScript.Shell
+        $shell.SendKeys($Text)
+    }
+}
+
 ## Set hotkey binding for command menu
 Set-PSReadLineKeyHandler -Chord 'Ctrl+g' -BriefDescription 'Command Menu' -ScriptBlock {
     param($key, $arg)
@@ -110,6 +145,6 @@ Set-PSReadLineKeyHandler -Chord 'Ctrl+g' -BriefDescription 'Command Menu' -Scrip
 
     # Leave the selected command on the input line
     if ($choice -ne -1) {
-        [Microsoft.PowerShell.PSConsoleReadLine]::Insert("$choice ")
+        Write-CommandLineText "$choice "
     } 
 }
